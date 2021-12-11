@@ -1,5 +1,6 @@
 import type { Todo } from '@prisma/client'
 import { useTransition } from 'remix'
+import { Heading } from './heading'
 import Item from './item'
 
 type ListProp = { todos: Todo[] }
@@ -19,8 +20,8 @@ const List = ({ todos }: ListProp) => {
         ]
       : todos
 
-  if (!todos) {
-    return null
+  if (!todos || (optimisticTodos && optimisticTodos.length === 0)) {
+    return <Heading>No Todos</Heading>
   }
 
   return (

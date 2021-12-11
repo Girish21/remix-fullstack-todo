@@ -1,4 +1,4 @@
-import { ActionFunction, json } from 'remix'
+import { ActionFunction, json, redirect } from 'remix'
 import invariant from 'tiny-invariant'
 import prisma from '~/db.server'
 
@@ -18,6 +18,11 @@ export const action: ActionFunction = async ({ request }) => {
       })
     } else if (request.method === 'DELETE') {
       await prisma.todo.delete({ where: { id } })
+      const todos = await prisma.todo.findMany()
+
+      if (todos.length === 0) {
+        return redirect('/')
+      }
     } else {
       throw new Error('Unknown request')
     }

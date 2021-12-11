@@ -1,11 +1,11 @@
 import type { Todo } from '@prisma/client'
-import { ActionFunction, LoaderFunction, MetaFunction, redirect } from 'remix'
-import { json, useCatch, useLoaderData } from 'remix'
-import TodoForm from '~/components/todo-form'
-import prisma from '~/db.server'
+import type { ActionFunction, LoaderFunction, MetaFunction } from 'remix'
+import { json, redirect, useCatch, useLoaderData } from 'remix'
 import invariant from 'tiny-invariant'
 import Container from '~/components/container'
 import List from '~/components/list'
+import TodoForm from '~/components/todo-form'
+import prisma from '~/db.server'
 
 type LoaderData = {
   todos: Todo[]
@@ -63,7 +63,7 @@ export const CatchBoundary = () => {
       return (
         <Container>
           <TodoForm />
-          <h2 className='text-gray-900 font-bold text-4xl'>No Todos</h2>
+          <List todos={[]} />
         </Container>
       )
   }

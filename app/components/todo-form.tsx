@@ -1,21 +1,26 @@
+import clsx from 'clsx'
 import * as React from 'react'
 import { Form, FormProps, useTransition } from 'remix'
-import { useFetcher } from 'remix'
 
 let TodoForm = (props: FormProps) => {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const formRef = React.useRef<HTMLFormElement>(null)
+  const submissionStatus = React.useRef<'submitting' | null>(null)
 
   const transition = useTransition()
 
   React.useEffect(() => {
-    if (
-      inputRef.current &&
-      formRef.current &&
-      transition.state === 'submitting'
+    if (transition.state === 'submitting') {
+      submissionStatus.current = 'submitting'
+    } else if (
+      transition.state === 'idle' &&
+      submissionStatus.current === 'submitting'
     ) {
-      inputRef.current.value = ''
-      inputRef.current.focus()
+      if (inputRef.current && formRef.current) {
+        formRef.current.reset()
+        inputRef.current.focus()
+      }
+      submissionStatus.current = null
     }
   }, [transition.state])
 
@@ -34,11 +39,19 @@ let TodoForm = (props: FormProps) => {
           name='todo'
           type='text'
           placeholder='Add Todo'
-          className='bg-gray-100 px-4 py-3 text-xl text-gray-600 flex-1 rounded-lg focus-within:outline-none focus:outline-none focus:ring-2 focus-within:ring-2 ring-pink-300 ring-offset-2'
+          className={clsx(
+            'bg-gray-100 px-4 py-3 text-xl text-gray-600 flex-1 rounded-lg focus-within:outline-none focus:outline-none focus:ring-2 focus-within:ring-2 ring-pink-300 ring-offset-2',
+            !!transition.submission && 'opacity-50 cursor-progress'
+          )}
           autoComplete='off'
           required
         />
-        <button className='bg-blue-700 text-white px-4 py-3 flex-shrink-0 rounded-lg shadow-md transition-transform hover:scale-105 focus-within:outline-none focus-within:ring-2 ring-pink-300 ring-offset-2'>
+        <button
+          className={clsx(
+            'bg-blue-700 text-white px-4 py-3 flex-shrink-0 rounded-lg shadow-md transition-transform hover:scale-105 focus-within:outline-none focus-within:ring-2 ring-pink-300 ring-offset-2',
+            !!transition.submission && 'opacity-50 cursor-progress'
+          )}
+        >
           Create
         </button>
       </fieldset>

@@ -13,13 +13,13 @@ const Item = ({ completed, id, todo }: Todo) => {
 
   const isDeleted = !!remove.submission
 
-  if (isDeleted) {
-    return null
-  }
-
   return (
     <li>
-      <div className='flex justify-between items-center'>
+      <div
+        className={clsx('flex justify-between items-center', {
+          'opacity-30': isDeleted,
+        })}
+      >
         <toggle.Form
           method='post'
           onChange={(e) =>
