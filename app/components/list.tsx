@@ -17,6 +17,7 @@ import {
 } from '@reach/utils'
 import * as React from 'react'
 import { useTransition } from 'remix'
+import { tabbable } from 'tabbable'
 import { Heading } from './heading'
 import Item from './item'
 
@@ -127,14 +128,15 @@ const useListItems = ({
     rotate: true,
     callback: (index: number) => {
       setActiveIndex(index)
-      containerRef.current?.focus()
+      // containerRef.current?.focus()
     },
     key: 'index',
   })
 
   return {
     props: {
-      tabIndex: -1,
+      tabIndex: 0,
+      'aria-role': 'list',
       ...props,
       ref,
       id: listId,
@@ -180,6 +182,13 @@ const useListItem = ({
   const ref = useComposedRefs(forwardedRef, handleRefSet, setValueTextFromDOM)
 
   React.useEffect(() => {
+    if (isSelected && ownRef.current) {
+      const tabbables = tabbable(ownRef.current)
+      tabbables?.[1]?.focus()
+    }
+  }, [isSelected])
+
+  React.useEffect(() => {
     const ownerDocument = getOwnerDocument(ownRef.current)
 
     function listener() {
@@ -197,6 +206,7 @@ const useListItem = ({
       tabIndex: -1,
       ...props,
       ref,
+      'aria-role': 'listitem',
       'data-selected': isSelected ? '' : undefined,
       'data-valuetext': valueText,
     },
@@ -209,7 +219,7 @@ const ListItems = React.forwardRef<
 >((originalProps, ref) => {
   const { props } = useListItems({ ...originalProps, ref })
 
-  return <div {...props} />
+  return <section {...props} />
 })
 
 const ListItem = React.forwardRef<
@@ -244,7 +254,9 @@ const List = ({ todos }: ListProp) => {
     <ListProvider>
       <ListItems className='flex flex-col gap-4'>
         {optimisticTodos.map((todo) => (
-          <ListItem key={todo.id}>{todo.todo}</ListItem>
+          <ListItem key={todo.id}>
+            <Item {...todo} />
+          </ListItem>
         ))}
       </ListItems>
     </ListProvider>
