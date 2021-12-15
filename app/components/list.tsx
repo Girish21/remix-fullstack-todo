@@ -97,8 +97,8 @@ const useListItems = ({
   onKeyDown,
   ...props
 }: ListItemsProps &
-  React.ComponentPropsWithoutRef<'div'> & {
-    ref: React.ForwardedRef<HTMLDivElement>
+  React.ComponentPropsWithoutRef<'ul'> & {
+    ref: React.ForwardedRef<HTMLUListElement>
   }) => {
   const { activeIndex, containerRef, listId, setActiveIndex } = useTodoContext()
   let items = useDescendantContext()
@@ -136,7 +136,6 @@ const useListItems = ({
   return {
     props: {
       tabIndex: 0,
-      'aria-role': 'list',
       ...props,
       ref,
       id: listId,
@@ -150,8 +149,8 @@ const useListItem = ({
   valueTextProp,
   ...props
 }: ListItemProps &
-  React.ComponentPropsWithoutRef<'div'> & {
-    ref: React.ForwardedRef<HTMLDivElement>
+  React.ComponentPropsWithoutRef<'li'> & {
+    ref: React.ForwardedRef<HTMLLIElement>
   }) => {
   const { activeIndex, setActiveIndex } = useTodoContext()
   const [valueText, setValueText] = React.useState(valueTextProp || '')
@@ -183,6 +182,7 @@ const useListItem = ({
 
   React.useEffect(() => {
     if (isSelected && ownRef.current) {
+      console.log(isSelected)
       const tabbables = tabbable(ownRef.current)
       tabbables?.[1]?.focus()
     }
@@ -206,7 +206,6 @@ const useListItem = ({
       tabIndex: -1,
       ...props,
       ref,
-      'aria-role': 'listitem',
       'data-selected': isSelected ? '' : undefined,
       'data-valuetext': valueText,
     },
@@ -214,21 +213,21 @@ const useListItem = ({
 }
 
 const ListItems = React.forwardRef<
-  HTMLDivElement,
-  ListItemsProps & React.ComponentPropsWithoutRef<'div'>
+  HTMLUListElement,
+  ListItemsProps & React.ComponentPropsWithoutRef<'ul'>
 >((originalProps, ref) => {
   const { props } = useListItems({ ...originalProps, ref })
 
-  return <section {...props} />
+  return <ul {...props} />
 })
 
 const ListItem = React.forwardRef<
-  HTMLDivElement,
-  ListItemsProps & React.ComponentPropsWithoutRef<'div'>
+  HTMLLIElement,
+  ListItemsProps & React.ComponentPropsWithoutRef<'li'>
 >((originalProps, ref) => {
   const { props } = useListItem({ ...originalProps, ref })
 
-  return <div {...props} />
+  return <li {...props} />
 })
 
 const List = ({ todos }: ListProp) => {

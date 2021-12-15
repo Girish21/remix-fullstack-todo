@@ -2,29 +2,54 @@ import { ActionFunction, json, redirect } from 'remix'
 import invariant from 'tiny-invariant'
 import prisma from '~/db.server'
 
+export enum Actions {
+  DELETE = '0',
+  MARK_STATUS = '1',
+  UPDATE = '2',
+}
+
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
-  console.log(request.method)
-  const completed = formData.get('completed')
+
   const id = formData.get('id')
+  const action = formData.get('_action')
+
+  invariant(typeof action === 'string', '_action is required')
 
   try {
     invariant(typeof id === 'string')
 
-    if (request.method === 'POST') {
-      await prisma.todo.update({
-        where: { id },
-        data: { completed: completed === 'on' },
-      })
-    } else if (request.method === 'DELETE') {
-      await prisma.todo.delete({ where: { id } })
-      const todos = await prisma.todo.findMany()
+    switch (action) {
+      case Actions.DELETE: {
+        await prisma.todo.delete({ where: { id } })
+        const todos = await prisma.todo.findMany()
 
-      if (todos.length === 0) {
-        return redirect('/')
+        if (todos.length === 0) {
+          return redirect('/')
+        }
+        break
       }
-    } else {
-      throw new Error('Unknown request')
+      case Actions.MARK_STATUS: {
+        const completed = formData.get('completed')
+
+        invariant(typeof completed === 'string')
+
+        await prisma.todo.update({
+          where: { id },
+          data: { completed: completed === 'on' },
+        })
+        break
+      }
+      case Actions.UPDATE: {
+        const todo = formData.get('todo')
+
+        invariant(typeof todo === 'string')
+
+        await prisma.todo.update({ where: { id }, data: { todo } })
+        break
+      }
+      default:
+        throw new Error('Unknown request')
     }
 
     return json({ ok: true })
